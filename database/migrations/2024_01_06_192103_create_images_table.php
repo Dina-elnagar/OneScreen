@@ -15,9 +15,8 @@ return new class extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             $table->id();
-            $table->string('image');
-            $table->string('path');
-           // $table->foreignId('product_id')->constrained('products');
+            $table->string('file_name');
+            $table->foreignId('product_id')->constrained('products');
             $table->timestamps();
         });
     }

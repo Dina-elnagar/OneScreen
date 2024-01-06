@@ -13,12 +13,5 @@ use App\Http\Controllers\ProductController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/nav', function () {
-    return view('Layouts.nav');
-});
-
-Route::resource('products', ProductController::class);
+Route::resource('/', ProductController::class);

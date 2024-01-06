@@ -18,7 +18,8 @@ class ProductController extends Controller
     {
         $suppliers = Supplier::all();
         $products = Product::all();
-        return view('Layouts.nav', compact('suppliers','products'));
+        $images = Image::all();
+        return view('Home', compact('suppliers','products','images'));
     }
 
     /**
@@ -28,7 +29,6 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -39,6 +39,12 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $sub = new Supplier();
+        $sub->name_sub=$request->input('name_sub');
+        $sub->code_sub=$request->input('code_sub');
+        $sub->save();
+
+        $supplier_id=Supplier::latest()->first()->id;
 
         $product= new Product();
         $product->name=$request->input('name');
@@ -47,13 +53,23 @@ class ProductController extends Controller
         $product->type=$request->has('type') ? true : false;
         $product->color=$request->has('color') ? true : false;
         $product->code=$request->input('code');
-      //  $product->supplier_id=1;
-
-       $product->supplier_id=$request->input('supplier_id');
-       $product->images_id=$request->input('images_id');
+        $product->supplier_id=$supplier_id;
         $product->save();
-        return redirect()->route('products.index')->with('success','Product created successfully.');
 
+        if ($request->hasFile('pic')){
+            $product_id=Product::latest()->first()->id;
+            $image=$request->file('pic');
+            $file_name=$image->getClientOriginalName();
+            $image_save=Image::create([
+                'product_id'=>$product_id,
+                'file_name'=> $file_name,
+            ]);
+            //move pic
+            $imageName= $request->pic->getClientOriginalName();
+            $request->pic->move(public_path('Attachment/'),$imageName);
+        }
+
+        return redirect()->route('index')->with('success','Product created successfully.');
 
     }
 
@@ -97,8 +113,9 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy(Product $products)
     {
-        //
+        $products->delete();
+        return redirect()->route('index')->with('success','Product deleted successfully.');
     }
 }
